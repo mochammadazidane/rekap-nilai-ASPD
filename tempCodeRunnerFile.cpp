@@ -167,4 +167,6 @@ void cariSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) 
     }
     if (!ditemukan)
         cout << "Siswa tidak ditemukan!\n";
+        cout<< "mantap";
 }
+
