@@ -82,15 +82,7 @@ int inputMenuUtama() {
     while (true) {
         cout << "Pilih menu (1-5): ";
         cin >> pilihan;
-        
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Input tidak valid! Masukkan angka 1-5.\n\n";
-            continue;
-        }
-        
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
         
         if (pilihan >= 1 && pilihan <= 5) {
             return pilihan;
@@ -106,15 +98,6 @@ int inputJumlahSiswa() {
     while (true) {
         cout << "Masukkan jumlah siswa (1-" << MAX_SISWA << "): ";
         cin >> jumlah;
-        
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Input tidak valid! Masukkan angka.\n";
-            continue;
-        }
-        
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         if (jumlah < 1 || jumlah > MAX_SISWA) {
             cout << "Jumlah siswa harus antara 1-" << MAX_SISWA << "!\n";
@@ -132,15 +115,6 @@ float inputNilai(string namaMapel) {
         cout << "Nilai " << namaMapel << " (0-100): ";
         cin >> nilaiInput;
         
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Input tidak valid! Masukkan angka.\n";
-            continue;
-        }
-        
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        
         if (nilaiInput < 0 || nilaiInput > 100) {
             cout << "Nilai harus antara 0-100!\n";
             continue;
@@ -156,30 +130,30 @@ void inputData(string nama[], float nilai[][JUMLAH_MAPEL], int &n) {
     n = inputJumlahSiswa();
 
     for (int i = 0; i < n; i++) {
-        cout << "\n--- Data Siswa ke-" << i + 1 << " ---\n";
-        
-        // Input nama dengan validasi tidak boleh kosong
-        while (true) {
-            cout << "Nama siswa: ";
-            getline(cin, nama[i]);
-            
-            // Hapus spasi di awal dan akhir
-            size_t start = nama[i].find_first_not_of(" \t");
-            size_t end = nama[i].find_last_not_of(" \t");
-            
-            if (start == string::npos) {
-                cout << "Nama tidak boleh kosong!\n";
-                continue;
-            }
-            
-            nama[i] = nama[i].substr(start, end - start + 1);
-            break;
+    cout << "\n--- Data Siswa ke-" << i + 1 << " ---\n";
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    while (true) {
+        cout << "Nama siswa: ";
+        getline(cin, nama[i]);
+
+        size_t start = nama[i].find_first_not_of(" \t");
+        size_t end = nama[i].find_last_not_of(" \t");
+
+        if (start == string::npos) {
+            cout << "Nama tidak boleh kosong!\n";
+            continue;
         }
 
-        // Input nilai untuk setiap mata pelajaran
+        nama[i] = nama[i].substr(start, end - start + 1);
+        break;
+    }
+
         for (int j = 0; j < JUMLAH_MAPEL; j++) {
             nilai[i][j] = inputNilai(mapel[j]);
         }
+
         
         cout << "Data siswa ke-" << i + 1 << " berhasil diinput!\n";
     }
@@ -259,6 +233,7 @@ void cariSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) 
     string cari;
     cout << "\n=== PENCARIAN DATA SISWA ===\n";
     cout << "Masukkan nama siswa yang ingin dicari: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     getline(cin, cari);
     
     // Hapus spasi di awal dan akhir
