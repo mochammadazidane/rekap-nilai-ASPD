@@ -2,32 +2,27 @@
 #include <iomanip>
 #include <string>
 #include <limits>
-#include <algorithm>
-#include <cctype>
+#include <algorithm> 
+#include <cctype>   
 using namespace std;
 
 const int MAX_SISWA = 36;
 const int JUMLAH_MAPEL = 3;
 string mapel[JUMLAH_MAPEL] = {"Literasi Membaca", "Literasi Numerik", "Literasi Sains"};
 
-// Prototipe fungsi
 void inputData(string nama[], float nilai[][JUMLAH_MAPEL], int &n);
+void tambahData(string nama[], float nilai[][JUMLAH_MAPEL], int &n);
 void hitungRataRata(float nilai[][JUMLAH_MAPEL], float rata[], int n);
 void urutkanRanking(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n);
 void tampilkanHasil(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n);
-void tampilNilaiTertinggiTerendah(float nilai[][JUMLAH_MAPEL], string nama[], int n);
+void tampilNilaiTertinggiTerendah(string nama[], float nilai[][JUMLAH_MAPEL], int n);
 void cariSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n);
+void editData(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n);
+void hapusData(string nama[], float nilai[][JUMLAH_MAPEL], int &n);
 int inputMenuUtama();
-int inputMenuKelola();
-int inputJumlahSiswaMax(int maxAllowed);
-float inputNilai(const string &namaMapel);
-int inputIntInRange(const string &prompt, int minVal, int maxVal);
-bool konfirmasiYN(const string &prompt);
-string toLowerStr(const string &s);
-
-void editSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int &n);
-void hapusSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int &n);
-void tambahSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int &n);
+int inputJumlahSiswa(int limit);
+float inputNilai(string namaMapel);
+string toLowerStr(const string &s); // fungsi bantu case-insensitive
 
 int main() {
     string nama[MAX_SISWA];
@@ -39,163 +34,124 @@ int main() {
 
     do {
         cout << "\n=== PROGRAM REKAP NILAI ASPD ===\n";
-        cout << "1. Input Data Nilai \n";
+        cout << "1. Input Data Nilai (Data Baru)\n";
         cout << "2. Tampilkan Rekap & Ranking\n";
-        cout << "3. Tampilkan Nilai Tertinggi & Terendah\n";
+        cout << "3. Tampilkan Nilai Tertinggi & Terendah beserta Nama\n";
         cout << "4. Cari Data Siswa\n";
-        cout << "5. Kelola Data Siswa\n";
-        cout << "6. Keluar\n";
-        
-        pilihan = inputMenuUtama();
+        cout << "5. Edit Data Siswa\n";
+        cout << "6. Tambah Data Siswa Baru\n";
+        cout << "7. Hapus Data Siswa\n";
+        cout << "8. Keluar\n";
 
+        pilihan = inputMenuUtama();
         switch (pilihan) {
             case 1:
                 inputData(nama, nilai, n);
                 hitungRataRata(nilai, rata, n);
-                urutkanRanking(nama, nilai, rata, n);
-                dataExists = (n > 0);
+                dataExists = true;
                 break;
             case 2:
-                if (!dataExists) {
-                    cout << "\nBelum ada data! Silakan input data terlebih dahulu.\n";
-                } else {
-                    // assume always sorted (we ensure sorting after any add/edit/delete)
+                if (!dataExists) cout << "Data belum ada!\n";
+                else {
+                    urutkanRanking(nama, nilai, rata, n);
                     tampilkanHasil(nama, nilai, rata, n);
                 }
                 break;
             case 3:
-                if (!dataExists) {
-                    cout << "\nBelum ada data! Silakan input data terlebih dahulu.\n";
-                } else {
-                    tampilNilaiTertinggiTerendah(nilai, nama, n);
-                }
+                if (!dataExists) cout << "Data belum ada!\n";
+                else tampilNilaiTertinggiTerendah(nama, nilai, n);
                 break;
             case 4:
-                if (!dataExists) {
-                    cout << "\nBelum ada data! Silakan input data terlebih dahulu.\n";
-                } else {
-                    cariSiswa(nama, nilai, rata, n);
-                }
+                if (!dataExists) cout << "Data belum ada!\n";
+                else cariSiswa(nama, nilai, rata, n);
                 break;
-            case 5: {
-                if (!dataExists) {
-                    cout << "\nBelum ada data! Silakan input data terlebih dahulu.\n";
-                    break;
-                }
-                int sub;
-                do {
-                    cout << "\n=== KELOLA DATA SISWA ===\n";
-                    cout << "1. Edit Data Siswa\n";
-                    cout << "2. Hapus Data Siswa\n";
-                    cout << "3. Tambah Siswa Baru\n";
-                    cout << "4. Kembali\n";
-                    sub = inputMenuKelola();
-                    switch (sub) {
-                        case 1:
-                            editSiswa(nama, nilai, rata, n);
-                            break;
-                        case 2:
-                            hapusSiswa(nama, nilai, rata, n);
-                            break;
-                        case 3:
-                            tambahSiswa(nama, nilai, rata, n);
-                            break;
-                        case 4:
-                            break;
-                        default:
-                            cout << "Pilihan tidak valid!\n";
-                    }
-                } while (sub != 4);
-                dataExists = (n > 0);
+            case 5:
+                if (!dataExists) cout << "Data belum ada!\n";
+                else editData(nama, nilai, rata, n);
                 break;
-            }
             case 6:
-                cout << "\nTerima kasih telah menggunakan program ini!\n";
+                if (!dataExists) cout << "Data belum ada!\n";
+                else tambahData(nama, nilai, n);
+                hitungRataRata(nilai, rata, n);
+                break;
+            case 7:
+                if (!dataExists) cout << "Data belum ada!\n";
+                else hapusData(nama, nilai, n);
+                hitungRataRata(nilai, rata, n);
+                if (n == 0) dataExists = false;
+                break;
+            case 8:
+                cout << "Terima kasih telah menggunakan program ini!\n";
                 break;
             default:
-                cout << "\nPilihan tidak valid! Silakan pilih 1-6.\n";
+                cout << "Pilihan salah!\n";
+                break;
         }
-    } while (pilihan != 6);
+    } while (pilihan != 8);
 
     return 0;
 }
 
-// ----------------------- Helper Input & Util -----------------------
+// Validasi menu
 int inputMenuUtama() {
-    return inputIntInRange("Pilih menu (1-6): ", 1, 6);
-}
-
-int inputMenuKelola() {
-    return inputIntInRange("Pilih submenu (1-4): ", 1, 4);
-}
-
-int inputJumlahSiswaMax(int maxAllowed) {
-    return inputIntInRange(("Masukkan jumlah siswa (1-" + to_string(maxAllowed) + "): ").c_str(), 1, maxAllowed);
-}
-
-int inputIntInRange(const string &prompt, int minVal, int maxVal) {
-    int val;
+    int pilihan;
     while (true) {
-        cout << prompt;
-        if (!(cin >> val)) {
-            cout << "Input harus berupa angka!\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-        }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // clear rest of line
-        if (val < minVal || val > maxVal) {
-            cout << "Nilai harus antara " << minVal << "-" << maxVal << "!\n";
-            continue;
-        }
-        return val;
+        cout << "Pilih menu: ";
+        cin >> pilihan;
+        if (pilihan >= 1 && pilihan <= 8) return pilihan;
+        cout << "Pilihan salah. Ulangi!\n";
     }
 }
 
-float inputNilai(const string &namaMapel) {
+// Fungsi input jumlah siswa
+int inputJumlahSiswa(int limit) {
+    int jumlah;
+    while (true) {
+        cout << "Masukkan jumlah siswa (1-" << limit << "): ";
+        cin >> jumlah;
+        if (jumlah >= 1 && jumlah <= limit) return jumlah;
+        cout << "Input tidak valid!\n";
+    }
+}
+
+// Fungsi input nilai
+float inputNilai(string namaMapel) {
     float nilaiInput;
     while (true) {
         cout << "Nilai " << namaMapel << " (0-100): ";
-        if (!(cin >> nilaiInput)) {
-            cout << "Input harus berupa angka!\n";
-            cin.clear();
+        cin >> nilaiInput;
+
+        if (cin.fail()) {
+            cin.clear(); 
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Input harus angka!\n";
             continue;
         }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        if (nilaiInput < 0 || nilaiInput > 100) {
-            cout << "Nilai harus antara 0-100!\n";
-            continue;
+
+        if (nilaiInput >= 0 && nilaiInput <= 100) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+            return nilaiInput;
         }
-        return nilaiInput;
+
+        cout << "Nilai harus 0-100!\n";
     }
 }
 
-bool konfirmasiYN(const string &prompt) {
-    string s;
-    while (true) {
-        cout << prompt << " (Y/N): ";
-        getline(cin, s);
-        if (s.size() == 0) continue;
-        char c = tolower(s[0]);
-        if (c == 'y') return true;
-        if (c == 'n') return false;
-        cout << "Masukkan Y atau N saja.\n";
-    }
-}
-
+// Fungsi bantu lowercase
 string toLowerStr(const string &s) {
-    string t = s;
-    transform(t.begin(), t.end(), t.begin(), [](unsigned char c){ return tolower(c); });
-    return t;
+    string res = s;
+    transform(res.begin(), res.end(), res.begin(),
+              [](unsigned char c){ return tolower(c); });
+    return res;
 }
 
-// ----------------------- Core Functions -----------------------
+// Input Data Baru
 void inputData(string nama[], float nilai[][JUMLAH_MAPEL], int &n) {
-    cout << "\n=== INPUT DATA NILAI (Reset semua data) ===\n";
-    int jumlah = inputJumlahSiswaMax(MAX_SISWA);
+    cout << "\n=== INPUT DATA BARU ===\n";
+    n = inputJumlahSiswa(MAX_SISWA);
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-    for (int i = 0; i < jumlah; i++) {
+    for (int i = 0; i < n; i++) {
         cout << "\n--- Data Siswa ke-" << i + 1 << " ---\n";
 
         while (true) {
@@ -220,22 +176,36 @@ void inputData(string nama[], float nilai[][JUMLAH_MAPEL], int &n) {
 
         cout << "Data siswa ke-" << i + 1 << " berhasil diinput!\n";
     }
-    n = jumlah;
-    cout << "\nSemua data berhasil diinput!\n";
 }
 
+// Tambah Data
+void tambahData(string nama[], float nilai[][JUMLAH_MAPEL], int &n) {
+    if (n >= MAX_SISWA) {
+        cout << "Data sudah penuh!\n";
+        return;
+    }
+    cout << "\n=== TAMBAH DATA SISWA ===\n";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Nama siswa baru: ";
+    getline(cin, nama[n]);
+    for (int j = 0; j < JUMLAH_MAPEL; j++)
+        nilai[n][j] = inputNilai(mapel[j]);
+    n++;
+    cout << "Data berhasil ditambahkan!\n";
+}
+
+// Hitung Rata-rata
 void hitungRataRata(float nilai[][JUMLAH_MAPEL], float rata[], int n) {
     for (int i = 0; i < n; i++) {
         float total = 0;
-        for (int j = 0; j < JUMLAH_MAPEL; j++) {
+        for (int j = 0; j < JUMLAH_MAPEL; j++)
             total += nilai[i][j];
-        }
         rata[i] = total / JUMLAH_MAPEL;
     }
 }
 
+// Bubble Sort Ranking
 void urutkanRanking(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) {
-    // Bubble sort descending berdasarkan rata
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
             if (rata[j] < rata[j + 1]) {
@@ -248,283 +218,108 @@ void urutkanRanking(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], in
     }
 }
 
+// Tampilkan Rekap
 void tampilkanHasil(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) {
-    cout << "\n=== REKAP NILAI ASPD ===\n";
+    cout << "\n=== REKAP NILAI DAN RANKING ===\n";
     cout << left << setw(5) << "Rank" << setw(20) << "Nama";
-    for (int j = 0; j < JUMLAH_MAPEL; j++) {
-        cout << setw(20) << mapel[j];
-    }
-    cout << setw(10) << "Rata-rata\n";
+    for (auto &m : mapel) cout << setw(20) << m;
+    cout << "Rata-rata\n";
     cout << string(95, '=') << endl;
 
     for (int i = 0; i < n; i++) {
-        cout << left << setw(5) << i + 1 
-             << setw(20) << nama[i];
-        for (int j = 0; j < JUMLAH_MAPEL; j++) {
-            cout << setw(20) << fixed << setprecision(2) << nilai[i][j];
-        }
-        cout << setw(10) << fixed << setprecision(2) << rata[i] << endl;
-    }
-    cout << string(95, '=') << endl;
-}
-
-void tampilNilaiTertinggiTerendah(float nilai[][JUMLAH_MAPEL], string nama[], int n) {
-    cout << "\n=== NILAI TERTINGGI & TERENDAH PER MAPEL ===\n";
-    cout << string(80, '=') << endl;
-
-    for (int j = 0; j < JUMLAH_MAPEL; j++) {
-
-        // cari nilai max & min
-        float maks = nilai[0][j];
-        float min = nilai[0][j];
-
-        for (int i = 1; i < n; i++) {
-            if (nilai[i][j] > maks) maks = nilai[i][j];
-            if (nilai[i][j] < min) min = nilai[i][j];
-        }
-
-        // kumpulkan nama siswa yang punya nilai max dan min
-        string namaMaks = "";
-        string namaMin = "";
-
-        for (int i = 0; i < n; i++) {
-            if (nilai[i][j] == maks) {
-                if (!namaMaks.empty()) namaMaks += ", ";
-                namaMaks += nama[i];
-            }
-            if (nilai[i][j] == min) {
-                if (!namaMin.empty()) namaMin += ", ";
-                namaMin += nama[i];
-            }
-        }
-
-        cout << left << setw(25) << mapel[j]
-             << "| Tertinggi: " << setw(7) << fixed << setprecision(2) << maks
-             << " (" << namaMaks << ") "
-             << "| Terendah: " << fixed << setprecision(2) << min
-             << " (" << namaMin << ")" << endl;
-    }
-
-    cout << string(80, '=') << endl;
-}
-
-void cariSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) {
-    string cari;
-    cout << "\n=== PENCARIAN DATA SISWA ===\n";
-    cout << "Masukkan nama siswa yang ingin dicari: ";
-    getline(cin, cari);
-    
-    // Trim
-    size_t start = cari.find_first_not_of(" \t");
-    size_t end = cari.find_last_not_of(" \t");
-    if (start == string::npos) {
-        cout << "Input kosong.\n";
-        return;
-    }
-    cari = cari.substr(start, end - start + 1);
-
-    string cariLower = toLowerStr(cari);
-    bool ditemukan = false;
-    for (int i = 0; i < n; i++) {
-        if (toLowerStr(nama[i]) == cariLower) {
-            cout << "\n--- Data Nilai " << nama[i] << " ---\n";
-            for (int j = 0; j < JUMLAH_MAPEL; j++) {
-                cout << left << setw(25) << mapel[j] 
-                     << ": " << fixed << setprecision(2) << nilai[i][j] << endl;
-            }
-            cout << string(40, '-') << endl;
-            cout << left << setw(25) << "Rata-rata" 
-                 << ": " << fixed << setprecision(2) << rata[i] << endl;
-            ditemukan = true;
-            break;
-        }
-    }
-    
-    if (!ditemukan) {
-        cout << "\nSiswa dengan nama '" << cari << "' tidak ditemukan!\n";
-    }
-}
-
-// ----------------------- Kelola: Edit / Hapus / Tambah -----------------------
-void editSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int &n) {
-    cout << "\n=== EDIT DATA SISWA ===\n";
-    cout << "Masukkan nama siswa yang ingin diedit (case-insensitive): ";
-    string cari;
-    getline(cin, cari);
-
-    // Trim
-    size_t start = cari.find_first_not_of(" \t");
-    size_t end = cari.find_last_not_of(" \t");
-    if (start == string::npos) {
-        cout << "Input kosong.\n";
-        return;
-    }
-    cari = cari.substr(start, end - start + 1);
-    string cariLower = toLowerStr(cari);
-
-    // Cari semua kecocokan (case-insensitive exact)
-    int foundCount = 0;
-    int indices[MAX_SISWA];
-    for (int i = 0; i < n; i++) {
-        if (toLowerStr(nama[i]) == cariLower) {
-            indices[foundCount++] = i;
-        }
-    }
-
-    if (foundCount == 0) {
-        cout << "Siswa '" << cari << "' tidak ditemukan.\n";
-        return;
-    }
-
-    int idx = -1;
-    if (foundCount == 1) {
-        idx = indices[0];
-    } else {
-        cout << "Ditemukan " << foundCount << " siswa dengan nama tersebut:\n";
-        for (int k = 0; k < foundCount; k++) {
-            cout << k+1 << ". " << nama[indices[k]] << endl;
-        }
-        int pilih = inputIntInRange("Pilih nomor siswa yang ingin diedit: ", 1, foundCount);
-        idx = indices[pilih-1];
-    }
-
-    cout << "\n-- Data saat ini --\n";
-    cout << "Nama: " << nama[idx] << endl;
-    for (int j = 0; j < JUMLAH_MAPEL; j++)
-        cout << mapel[j] << ": " << fixed << setprecision(2) << nilai[idx][j] << endl;
-
-    if (konfirmasiYN("Apakah ingin mengubah nama juga?")) {
-        while (true) {
-            cout << "Nama baru: ";
-            string namaBaru;
-            getline(cin, namaBaru);
-            size_t s = namaBaru.find_first_not_of(" \t");
-            size_t e = namaBaru.find_last_not_of(" \t");
-            if (s == string::npos) {
-                cout << "Nama tidak boleh kosong!\n";
-                continue;
-            }
-            namaBaru = namaBaru.substr(s, e - s + 1);
-            nama[idx] = namaBaru;
-            break;
-        }
-    }
-
-    if (konfirmasiYN("Apakah ingin mengubah nilai?")) {
-        for (int j = 0; j < JUMLAH_MAPEL; j++) {
-            cout << "Nilai lama " << mapel[j] << ": " << fixed << setprecision(2) << nilai[idx][j] << endl;
-            if (konfirmasiYN("Ubah nilai " + mapel[j] + "?")) {
-                nilai[idx][j] = inputNilai(mapel[j]);
-            }
-        }
-    }
-
-    // setelah edit, rekalkulasi dan urutkan
-    hitungRataRata(nilai, rata, n);
-    urutkanRanking(nama, nilai, rata, n);
-    cout << "Data siswa berhasil diperbarui dan ranking diperbarui.\n";
-}
-
-void hapusSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int &n) {
-    cout << "\n=== HAPUS DATA SISWA ===\n";
-    cout << "Masukkan nama siswa yang ingin dihapus (case-insensitive): ";
-    string cari;
-    getline(cin, cari);
-
-    // Trim
-    size_t start = cari.find_first_not_of(" \t");
-    size_t end = cari.find_last_not_of(" \t");
-    if (start == string::npos) {
-        cout << "Input kosong.\n";
-        return;
-    }
-    cari = cari.substr(start, end - start + 1);
-    string cariLower = toLowerStr(cari);
-
-    // Cari semua kecocokan
-    int foundCount = 0;
-    int indices[MAX_SISWA];
-    for (int i = 0; i < n; i++) {
-        if (toLowerStr(nama[i]) == cariLower) {
-            indices[foundCount++] = i;
-        }
-    }
-
-    if (foundCount == 0) {
-        cout << "Siswa '" << cari << "' tidak ditemukan.\n";
-        return;
-    }
-
-    int idx = -1;
-    if (foundCount == 1) {
-        idx = indices[0];
-    } else {
-        cout << "Ditemukan " << foundCount << " siswa dengan nama tersebut:\n";
-        for (int k = 0; k < foundCount; k++) {
-            cout << k+1 << ". " << nama[indices[k]] << endl;
-        }
-        int pilih = inputIntInRange("Pilih nomor siswa yang ingin dihapus: ", 1, foundCount);
-        idx = indices[pilih-1];
-    }
-
-    cout << "\n-- Data yang akan dihapus --\n";
-    cout << "Nama: " << nama[idx] << endl;
-    for (int j = 0; j < JUMLAH_MAPEL; j++)
-        cout << mapel[j] << ": " << fixed << setprecision(2) << nilai[idx][j] << endl;
-
-    if (!konfirmasiYN("Yakin ingin menghapus siswa ini?")) {
-        cout << "Penghapusan dibatalkan.\n";
-        return;
-    }
-
-    // hapus dengan menggeser data
-    for (int i = idx; i < n - 1; i++) {
-        nama[i] = nama[i + 1];
+        cout << left << setw(5) << i+1 << setw(20) << nama[i];
         for (int j = 0; j < JUMLAH_MAPEL; j++)
-            nilai[i][j] = nilai[i + 1][j];
+            cout << setw(20) << fixed << setprecision(2) << nilai[i][j];
+        cout << rata[i] << endl;
     }
-    n--;
-    // rekalkulasi dan urutkan jika masih ada data
-    if (n > 0) {
-        hitungRataRata(nilai, rata, n);
-        urutkanRanking(nama, nilai, rata, n);
-    }
-    cout << "Data siswa berhasil dihapus dan ranking diperbarui.\n";
 }
 
-void tambahSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int &n) {
-    cout << "\n=== TAMBAH SISWA BARU ===\n";
-    int spaceLeft = MAX_SISWA - n;
-    if (spaceLeft <= 0) {
-        cout << "Kapasitas maksimum siswa (" << MAX_SISWA << ") telah tercapai. Hapus beberapa data dulu.\n";
-        return;
-    }
-    int qty = inputIntInRange(("Berapa siswa yang ingin ditambah? (1-" + to_string(spaceLeft) + "): ").c_str(), 1, spaceLeft);
-
-    for (int i = 0; i < qty; i++) {
-        cout << "\n--- Data Siswa Tambahan ke-" << i + 1 << " ---\n";
-        while (true) {
-            cout << "Nama siswa: ";
-            string tmp;
-            getline(cin, tmp);
-            size_t s = tmp.find_first_not_of(" \t");
-            size_t e = tmp.find_last_not_of(" \t");
-            if (s == string::npos) {
-                cout << "Nama tidak boleh kosong!\n";
-                continue;
+// Nilai Tertinggi & Terendah + Nama
+void tampilNilaiTertinggiTerendah(string nama[], float nilai[][JUMLAH_MAPEL], int n) {
+    cout << "\n=== NILAI TERTINGGI & TERENDAH ===\n";
+    for (int j = 0; j < JUMLAH_MAPEL; j++) {
+        float maks = nilai[0][j], min = nilai[0][j];
+        string namaMaks = nama[0], namaMin = nama[0];
+        for (int i = 1; i < n; i++) {
+            if (nilai[i][j] > maks) {
+                maks = nilai[i][j];
+                namaMaks = nama[i];
             }
-            nama[n] = tmp.substr(s, e - s + 1);
-            break;
+            if (nilai[i][j] < min) {
+                min = nilai[i][j];
+                namaMin = nama[i];
+            }
         }
-        for (int j = 0; j < JUMLAH_MAPEL; j++) {
-            nilai[n][j] = inputNilai(mapel[j]);
-        }
-        cout << "Data siswa '" << nama[n] << "' berhasil ditambahkan.\n";
-        n++;
+        cout << mapel[j] << " | Tertinggi: " << maks << " (" << namaMaks << ")"
+             << " | Terendah: " << min << " (" << namaMin << ")\n";
     }
+}
 
-    // rekalkulasi dan urutkan
-    hitungRataRata(nilai, rata, n);
-    urutkanRanking(nama, nilai, rata, n);
-    cout << "Semua siswa baru ditambahkan dan ranking diperbarui.\n";
+// Cari Siswa (case-insensitive)
+void cariSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string cari;
+    cout << "Nama siswa: ";
+    getline(cin, cari);
+
+    string cariLower = toLowerStr(cari);
+
+    for (int i = 0; i < n; i++) {
+        if (toLowerStr(nama[i]) == cariLower) {
+            cout << "\nData ditemukan!\n";
+            for (int j = 0; j < JUMLAH_MAPEL; j++)
+                cout << mapel[j] << ": " << nilai[i][j] << endl;
+            cout << "Rata-rata: " << rata[i] << endl;
+            return;
+        }
+    }
+    cout << "Tidak ditemukan!\n";
+}
+
+// Edit Data Siswa
+void editData(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string cari;
+    cout << "Masukkan nama siswa yang ingin diedit: ";
+    getline(cin, cari);
+
+    string cariLower = toLowerStr(cari);
+
+    for (int i = 0; i < n; i++) {
+        if (toLowerStr(nama[i]) == cariLower) {
+            cout << "Edit nama (lama: " << nama[i] << "): ";
+            getline(cin, nama[i]);
+
+            for (int j = 0; j < JUMLAH_MAPEL; j++)
+                nilai[i][j] = inputNilai(mapel[j]);
+
+            cout << "Data berhasil diperbarui!\n";
+            return;
+        }
+    }
+    cout << "Siswa tidak ditemukan!\n";
+}
+
+// Hapus Data Siswa
+void hapusData(string nama[], float nilai[][JUMLAH_MAPEL], int &n) {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string cari;
+    cout << "Masukkan nama siswa yang ingin dihapus: ";
+    getline(cin, cari);
+
+    string cariLower = toLowerStr(cari);
+
+    for (int i = 0; i < n; i++) {
+        if (toLowerStr(nama[i]) == cariLower) {
+            for (int j = i; j < n - 1; j++) {
+                nama[j] = nama[j + 1];
+                for (int k = 0; k < JUMLAH_MAPEL; k++)
+                    nilai[j][k] = nilai[j + 1][k];
+            }
+            n--;
+            cout << "Data siswa " << cari << " berhasil dihapus!\n";
+            return;
+        }
+    }
+    cout << "Siswa tidak ditemukan!\n";
 }
