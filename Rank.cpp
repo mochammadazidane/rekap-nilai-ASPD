@@ -34,13 +34,13 @@ int main() {
 
     do {
         cout << "\n=== PROGRAM REKAP NILAI ASPD ===\n";
-        cout << "1. Input Data Nilai (Data Baru)\n";
+        cout << "1. Input Data Nilai Siswa (Baru)\n";
         cout << "2. Tampilkan Rekap & Ranking\n";
         cout << "3. Tampilkan Nilai Tertinggi & Terendah beserta Nama\n";
-        cout << "4. Cari Data Siswa\n";
-        cout << "5. Edit Data Siswa\n";
-        cout << "6. Tambah Data Siswa Baru\n";
-        cout << "7. Hapus Data Siswa\n";
+        cout << "4. Cari Data Nilai Siswa\n";
+        cout << "5. Edit Data Nilai Siswa\n";
+        cout << "6. Tambah Data Nilai Siswa Baru\n";
+        cout << "7. Hapus Data Nilai Siswa\n";
         cout << "8. Keluar\n";
 
         pilihan = inputMenuUtama();
@@ -83,9 +83,6 @@ int main() {
             case 8:
                 cout << "Terima kasih telah menggunakan program ini!\n";
                 break;
-            default:
-                cout << "Pilihan salah!\n";
-                break;
         }
     } while (pilihan != 8);
 
@@ -95,12 +92,26 @@ int main() {
 // Validasi menu
 int inputMenuUtama() {
     int pilihan;
+
     while (true) {
         cout << "Pilih menu: ";
         cin >> pilihan;
-        if (pilihan >= 1 && pilihan <= 8) return pilihan;
-        cout << "Pilihan salah. Ulangi!\n";
+
+        // Cek jika input huruf / simbol
+        if (cin.fail()) {
+            cin.clear();            // reset error
+            cin.ignore(1000, '\n'); // buang input salah
+            cout << "Input harus berupa angka!\n";
+            continue;
+        }
+
+        if (pilihan >= 1 && pilihan <= 8) {
+            break;
+        } else {
+            cout << "Pilihan tidak valid. Pilih angka 1-8!\n";
+        }
     }
+    return pilihan;
 }
 
 // Fungsi input jumlah siswa
@@ -109,9 +120,23 @@ int inputJumlahSiswa(int limit) {
     while (true) {
         cout << "Masukkan jumlah siswa (1-" << limit << "): ";
         cin >> jumlah;
-        if (jumlah >= 1 && jumlah <= limit) return jumlah;
-        cout << "Input tidak valid!\n";
+
+        // Jika input gagal (karena huruf / simbol)
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n'); 
+            cout << "Input harus berupa angka!\n";
+            continue;
+        }
+
+        // Validasi rentang angka
+        if (jumlah >= 1 && jumlah <= limit){
+            break;
+        } else{
+            cout << "Input tidak valid! Masukkan angka 1-" << limit << ".\n";
+        }   
     }
+    return jumlah;
 }
 
 // Fungsi input nilai
@@ -165,15 +190,12 @@ void inputData(string nama[], float nilai[][JUMLAH_MAPEL], int &n) {
                 cout << "Nama tidak boleh kosong!\n";
                 continue;
             }
-
             nama[i] = nama[i].substr(start, end - start + 1);
             break;
         }
-
         for (int j = 0; j < JUMLAH_MAPEL; j++) {
             nilai[i][j] = inputNilai(mapel[j]);
         }
-
         cout << "Data siswa ke-" << i + 1 << " berhasil diinput!\n";
     }
 }
@@ -261,19 +283,26 @@ void cariSiswa(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], int n) 
     string cari;
     cout << "Nama siswa: ";
     getline(cin, cari);
-
-    string cariLower = toLowerStr(cari);
-
+    string cariLower = cari;
+    transform(cariLower.begin(), cariLower.end(), cariLower.begin(), ::tolower);
     for (int i = 0; i < n; i++) {
-        if (toLowerStr(nama[i]) == cariLower) {
-            cout << "\nData ditemukan!\n";
+        string namaLower = nama[i];
+        transform(namaLower.begin(), namaLower.end(), namaLower.begin(), ::tolower);
+        if (namaLower == cariLower) {
+            cout << "\n=== DATA SISWA DITEMUKAN ===\n";
+            cout << left << setw(20) << "Mata Pelajaran" << "Nilai\n";
+            cout << string(28, '-') << endl;
+
             for (int j = 0; j < JUMLAH_MAPEL; j++)
-                cout << mapel[j] << ": " << nilai[i][j] << endl;
-            cout << "Rata-rata: " << rata[i] << endl;
+                cout << left << setw(20) << mapel[j] 
+                     << fixed << setprecision(2) << nilai[i][j] << endl;
+
+            cout << left << setw(20) << "Rata-rata"
+                 << fixed << setprecision(2) << rata[i] << endl;
             return;
         }
     }
-    cout << "Tidak ditemukan!\n";
+    cout << "Data tidak ditemukan!\n";
 }
 
 // Edit Data Siswa
