@@ -271,39 +271,40 @@ void tampilkanHasil(string nama[], float nilai[][JUMLAH_MAPEL], float rata[], in
 void tampilNilaiTertinggiTerendah(float nilai[][JUMLAH_MAPEL], string nama[], int n) {
     cout << "\n=== NILAI TERTINGGI & TERENDAH PER MAPEL ===\n";
     cout << string(80, '=') << endl;
-    
+
     for (int j = 0; j < JUMLAH_MAPEL; j++) {
+
+        // cari nilai max & min
         float maks = nilai[0][j];
         float min = nilai[0][j];
-        
-        // temukan nilai max & min
+
         for (int i = 1; i < n; i++) {
             if (nilai[i][j] > maks) maks = nilai[i][j];
             if (nilai[i][j] < min) min = nilai[i][j];
         }
 
-        // kumpulkan nama yang memiliki nilai max & min
+        // kumpulkan nama siswa yang punya nilai max dan min
         string namaMaks = "";
         string namaMin = "";
-        bool firstMaks = true, firstMin = true;
+
         for (int i = 0; i < n; i++) {
-            if (abs(nilai[i][j] - maks) < 1e-6) {
-                if (!firstMaks) namaMaks += ", ";
+            if (nilai[i][j] == maks) {
+                if (!namaMaks.empty()) namaMaks += ", ";
                 namaMaks += nama[i];
-                firstMaks = false;
             }
-            if (abs(nilai[i][j] - min) < 1e-6) {
-                if (!firstMin) namaMin += ", ";
+            if (nilai[i][j] == min) {
+                if (!namaMin.empty()) namaMin += ", ";
                 namaMin += nama[i];
-                firstMin = false;
             }
         }
-        
-        cout << left << setw(25) << mapel[j] 
-             << "| Tertinggi: " << fixed << setprecision(2) << setw(7) << maks 
-             << "(" << namaMaks << ") "
-             << "| Terendah: " << fixed << setprecision(2) << min << " (" << namaMin << ")" << endl;
+
+        cout << left << setw(25) << mapel[j]
+             << "| Tertinggi: " << setw(7) << fixed << setprecision(2) << maks
+             << " (" << namaMaks << ") "
+             << "| Terendah: " << fixed << setprecision(2) << min
+             << " (" << namaMin << ")" << endl;
     }
+
     cout << string(80, '=') << endl;
 }
 
